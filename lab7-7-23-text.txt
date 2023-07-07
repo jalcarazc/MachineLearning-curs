@@ -1,0 +1,60 @@
+import pandas as pd
+titanic=pd.read_csv("C:/Curs Python/Titanic.csv")
+titanic.info()
+titanic.head(10)
+titanic.tail(10)
+titanic['Name'] 
+titanic['Name'].head(5).sort_values(ascending=True)
+titanicC2=titanic['Pclass']==2
+titanicC2
+titanic[titanicC2]
+titanicC3=titanic[titanic['Pclass']==3]
+titanicC3
+titanicC3.PassengerId.count()
+filtreC13=(titanic['Pclass']==1)|(titanic['Pclass']==3)
+titanic[filtreC13]
+filtreC1S1=(titanic['Pclass']==1)&(titanic['Survived']==1)
+titanic[filtreC1S1].PassengerId.count()
+titanic['Age']=titanic['Age'].str.replace(",",".").astype(float)
+titanic['Age'].mean()
+
+
+habitantes=pd.read_excel("C:/Curs Python/Datos Accidente Original.xlsx",sheet_name='Datos')
+habitantes
+habitantes['Habitantes']
+habitantes['Num. Accidentes']
+
+import matplotlib.pyplot as plt
+y=habitantes['Num. Accidentes']
+x=habitantes['Habitantes']
+plt.scatter(x,y,color='blue')
+plt.title("Número accidents per població")
+plt.show;
+import numpy as np
+z=np.polyfit(x,y,1)
+h=np.poly1d(z)(x)
+plt.plot(x,h,"r--",lw=1)
+plt.show;
+
+from sklearn.linear_model import LinearRegression
+lineal=LinearRegression()
+lineal.fit(x.values.reshape(-1,1),y)
+a=lineal.coef_
+b=lineal.intercept_
+print("El valor del pendent és",a)
+print("El valor del coeficient d'intercepió - ordenada en l'origen és",round(b,4))
+
+Poblacio_Ficticia=np.array([95000])
+prediccio=lineal.predict(Poblacio_Ficticia.reshape(-1,1))
+print("El núm previst d'accindents en",Poblacio_Ficticia,"serà de",prediccio,"accidents")
+
+r2=lineal.score(x.values.reshape(-1,1),y)
+print("El valor del coeficient r2 és",round(r2,2))
+
+EXERCICI
+import pandas as pd
+# pd.df = pd.read_csv("sample.csv")
+motos=pd.read_csv("C:/Curs Python/Motocicletas gasolina.csv")
+motos
+motos['Año']
+motos['Unidades']
