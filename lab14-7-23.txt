@@ -1,0 +1,167 @@
+import numpy as np
+a = np.array([[3.25,7.19,8.66,7.36],
+              [9.35,7.26,4.76,7.61],
+              [1.75,5.14,3.60,7.88],
+              [5.45,6.29,3.22,7.19]])
+
+print (a.shape)
+print (a.ndim)
+print (a.size)
+print (len(a))
+print (a)
+a[2,2]
+a[2,:]
+a[:,1]
+
+a.reshape(8,2)
+print(a.min())
+print(a.max())
+
+
+b=a.reshape(1,16)
+print(b)
+b.argmax()
+b.argmin()
+print(b.argmin())
+
+
+a.argmax(0) 	#el màx de cada columna
+a.argmax(1) 	#el màx de cada fila
+print(a.argmax(0))
+print(a.argmax(1))
+
+a.ndim
+c=a.reshape(-1)
+c
+c.ndim
+d=a.reshape(-1,1)
+d
+
+
+XARXA NEURONAL XOR
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+
+dades_fit=np.array([[0,0],[0,1],[1,0],[1,1]],"float32")
+dades_fit.ndim
+dades_etiquetes=np.array([[0],[1],[1],[0]],"float32")
+model=keras.Sequential([
+    keras.layers.Dense(16, input_dim=2, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+
+model.compile(loss='mean_squared_error',
+              optimizer='adam',
+              metrics=['binary_accuracy'])
+
+model.fit(dades_fit, dades_etiquetes, epochs=1000)
+
+scores=model.evaluate(dades_fit,dades_etiquetes)
+print(model.metrics_names[1], scores[1]*100)
+print(model.predict(dades_fit).round())
+
+dades_test=np.array([[1,0]])
+print("El resultat de la predicció és",model.predict(dades_test).round())
+
+
+
+XARXA NEURONAL MNIST
+
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+import matplotlib.pyplot as plt
+
+roba=keras.datasets.fashion_mnist
+(imatges_entre, etiquetes_entrenament), (imatges_test, etiquetes_test) = roba.load_data()
+
+
+imatges_entre.shape
+len(etiquetes_entrenament)
+
+etiquetes_entrenament
+nom_roba=['Samarreta','Pantalons','Jersey','Vestit','Abric',
+          'Sandàlies','Camisa','Bambes','Bossa','Botes']
+nom_roba[etiquetes_entrenament[59999]]
+
+
+x=0
+plt.figure()
+plt.imshow(imatges_entre[x])
+plt.colorbar()
+plt.grid(False)
+plt.show()
+print
+nom_roba[etiquetes_entrenament[x]]
+
+
+x=59999
+plt.figure()
+plt.imshow(imatges_entre[x])
+plt.colorbar()
+plt.grid(False)
+plt.show()
+print
+nom_roba[etiquetes_entrenament[x]]
+
+
+x=12500
+plt.figure()
+plt.imshow(imatges_entre[x])
+plt.colorbar()
+plt.grid(False)
+plt.show()
+print
+nom_roba[etiquetes_entrenament[x]]
+
+imatges_entre=imatges_entre/255.0
+imatges_test=imatges_test/255.0
+
+plt.figure(figsize=(10,10))
+for i in range(25):
+    plt.subplot(7,5,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.imshow(imatges_entre[i],cmap=plt.cm.binary)
+    plt.xlabel(nom_roba[etiquetes_entrenament[i]])
+plt.show()
+
+
+model=keras.Sequential([
+    keras.layers.Flatten(input_shape=(28,28)),
+    keras.layers.Dense(128,activation='relu'),
+    keras.layers.Dense(10,activation='softmax')
+])
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(imatges_entre, etiquetes_entrenament, epochs=10)
+
+
+model.fit(imatges_entre, etiquetes_entrenament, epochs=100)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
