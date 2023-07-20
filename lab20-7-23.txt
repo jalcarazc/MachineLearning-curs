@@ -1,0 +1,228 @@
+Deures
+crear repositori privat
+pujar 4 fitxers amb el nom i DNI tal com indica la codificació
+en el nostre github privat
+
+
+per fer comentaris des del Github al profe: entrar al seu Github, anar a Issues, new i escriure el missatge, i anomenant 
+@DaniloOne per tq li arribi al profe
+submit
+
+Tensorflow per fer prediccions
+
+quan tornem a obrir un fitxer, 
+s'ha d'execuar de nou pq el kernel està buit 
+amb RUN ALL al VS
+
+
+Un cop entrenat el model de nou, 
+visualitzem la primera imatge del conjunt de dades de test
+
+plt.figure()
+plt.imshow(imatges_test[0])
+plt.colorbar()
+plt.grid(False)
+plt.show();
+
+
+un print deixa una línia en blanc de separació
+
+print
+nom_roba[etiquetes_test[0]]
+
+
+el darrer pas és avaluar l'errada, l'exactitud del model i 
+la pèrdua. la finalitat última d'un model és fer la predicció
+de la variable resposta en observacions futures de dades que no hagi vist mai
+
+loss és el que el model desestima, pq detecta que no és capaç d'encertar-lo
+
+per veure si prediu bé, no li passem les etiquetes
+
+
+test_loss, test_acc = model.evaluate(imatges_test, etiquetes_test, verbose=0)
+print('\nTest accuracy:', test_acc)
+print('\nTest loss:', test_loss)
+
+prediccions = model.predict(imatges_test)
+prediccions[0]
+
+(aquí provem amb el primer, q és botes). tria el més gran de l'array
+ho comprovem amb argmax
+
+
+plt.figure()
+plt.imshow(imatges_test[10])
+plt.colorbar()
+plt.grid(False)
+plt.show();
+print
+nom_roba[etiquetes_test[10]]
+
+np.argmax(prediccions[10])
+nom_roba[np.argmax(prediccions[10])]
+
+
+np.argmax(prediccions[9999])
+nom_roba[np.argmax(prediccions[9999])]
+
+Convé guardar la xarxa neuronal un cop entrenada 
+en un fitxer json:
+
+model_json = model.to_json()
+with open("model.json","w") as json_file:
+    json_file.write(model_json)
+
+després repartim els pesos a HDF5
+
+model.save_weights("model.h5")
+print("Desat amb èxit")
+
+ho grava per defecte a la carpeta on estem
+
+
+Per provar-ho tot, fem restart, buidem el kernel 
+i fem un fitxer nou Modelcarregat.ipynb
+i carreguem un altre conjunt d'imatges d'internet
+
+
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+import matplotlib.pyplot as plt
+
+roba=keras.datasets.fashion_mnist
+(imatges_entre, etiquetes_entrenament), (imatges_test, etiquetes_test) = roba.load_data()
+
+imatges_test.shape
+
+from keras.models import model_from_json
+json_file = open("model.json","r")
+model_carregat = json_file.read()
+json_file.close()
+model_carregat_final = model_from_json(model_carregat)
+model_carregat_final.load_weights("model.h5")
+print("Nou model ajustat perfectament")
+
+model_carregat_final.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+prediccions = model_carregat_final.predict(imatges_test)
+prediccions[0]
+
+nom_roba=['Samarreta','Pantalons','Jersey','Vestit','Abric',
+          'Sandàlies','Camisa','Bambes','Bossa','Botes']
+
+np.argmax(prediccions[9999])
+nom_roba[np.argmax(prediccions[9999])]
+
+
+
+TREBALL AMB PREPROCESSAMENT DE DADES
+Descarreguem el fitxer del github Ventas GrouceryMeses
+Per poder llegir excels cal instal·lar openpyxl
+
+#Processar dades per poder fer models predictius, en aquest cas farem
+#VentasGroucery_Meses.xlsx. Per poder llegir excel cal instal·lar openpyxl
+#tb cal pandas
+
+import pandas as pd
+agosto2014 = pd.read_excel("C:/Curs Python/VentasGroucery_Meses.xlsx", sheet_name="Ventas Agosto 2014")
+agosto2014
+septiembre2014 = pd.read_excel("C:/Curs Python/VentasGroucery_Meses.xlsx", sheet_name="Ventas Septiembre 2014")
+septiembre2014
+octubre2014 = pd.read_excel("C:/Curs Python/VentasGroucery_Meses.xlsx", sheet_name="Ventas Octubre 2014")
+octubre2014
+
+
+#Per juntar 2 o més dataframes o fulls d'excel en un de sol, cal fer servir concat (junta en vertical)
+#han de tenir el mateix núm de columnes i els mateixos noms
+
+trimestre = pd.concat([agosto2014, septiembre2014, octubre2014])
+trimestre.head(10)
+
+#càlcul de l'import de venda = Unit Price * Quantity
+
+trimestre['Import']=trimestre['Unit Price']*trimestre['Quantity']
+trimestre.head(2)
+
+#Per veure els valors únics d'un camp (en vertical sense unique o en horitzontal amb unique):
+
+trimestre['Category'].unique()
+
+trimestre['Category']
+
+#Per agrupar i veure dades resumides
+#es pot fer sum(), mean(), max(), min(), count()
+
+
+trimestre.groupby(['Category']).Import.sum()
+trimestre.groupby(['Category','Ship Country']).Import.sum()
+
+si el camp numèric té espais_
+
+trimestre.groupby(['Category'])["Unit Price"].count()
+
+si desem l'agrupació en un objecte, això ho considera una sèrie, no un dataframe:
+
+categories = trimestre.groupby(['Category']).Import.sum()
+categories
+
+s'ha de convertir, reanomenar la columna d'import i resetejar l'index
+
+categoriesdf=pd.DataFrame(categories, columns=['Acumulat'])
+categoriesdf
+
+categories2 = trimestre.groupby(['Category']).Import.sum()
+categoriesdf=pd.DataFrame(categories2, columns=['Import'])
+categoriesdf=categoriesdf.reset_index()
+categoriesdf
+
+
+#PRACTICA: CREAR UN DATAFRAME PER VEURE LA SUMA DE 
+QUANTITY PER Categoria, i després fer un merge
+
+categories3 = trimestre.groupby(['Category']).Quantity.sum()
+categoriesdf2=pd.DataFrame(categories3, columns=['Quantity'])
+categoriesdf2=categoriesdf2.reset_index()
+categoriesdf2
+
+MERGE:
+
+agrupacio_final = pd.merge(categoriesdf,categoriesdf2, on="Category")
+agrupacio_final
+
+
+#PRACTICA: Fer una predicció per esbrinar l'import 
+de facturació d'un país (Andorra, que no està a la base de dades)
+que compri 1000 unitats, utilitzant el dataframe trimestre
+Les variables quantitatives que apliquen són Quantity + Import
+Predicció amb scikit-learn
+Cal fer preprocessament previ
+Cal esbrinar quàntes unitats i import compra 
+cada país del dataframe trimestre
+
+23047 és el resultat aprox
+
+exercici avaluació 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
